@@ -1,6 +1,9 @@
 USE DOCKERIZED;
 CREATE TABLE users(
    id INT AUTO_INCREMENT,
-   name VARCHAR(50) NOT NULL,
+   name VARCHAR(255) NOT NULL,
+   age INT NOT NULL,
+   face_id VARCHAR(255) NOT NULL,
+   profile_photo_url VARCHAR(255) NOT NULL
    PRIMARY KEY(id)
 );

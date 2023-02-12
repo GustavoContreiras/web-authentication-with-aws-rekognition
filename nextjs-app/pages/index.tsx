@@ -1,26 +1,25 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
-import { useEffect, useState } from 'react'
-
-const inter = Inter({ subsets: ['latin'] })
+import { useCallback, useRef, useState } from 'react'
+import Webcam from "react-webcam";
 
 export default function Home() {
 
-  const [users, setUsers] = useState([])
-
-  useEffect(() => {
-    fetch('http://localhost:3001/users', {
-      headers: {
-        mode: 'cors'
+  const webcamDimensions = { width: 640, height: 360 }
+  const webcamRef: any = useRef(null);
+  const takePhoto = useCallback(
+    () => {
+      if (webcamRef && webcamRef.current) {
+        const imageSrc = webcamRef.current.getScreenshot();
+        setProfilePhotoBase64(imageSrc)
       }
-    })
-      .then((response: Response) => response.json())
-      .then((users: any) => {
-        setUsers(users)
-      })
-  }, [])
+    },
+    [webcamRef]
+  );
+
+  const [profilePhotoBase64, setProfilePhotoBase64] = useState('')
+  const [clickedRegister, setClickedRegister] = useState(false)
+  const [userData, setUserData] = useState(undefined)
 
   return (
     <>
@@ -31,114 +30,103 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div className={styles.description}>
-          <p>
-            Get started by editing&nbsp;
-            <code className={styles.code}>pages/index.tsx</code>
-          </p>
-          <div>
-            <a
-              href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              By{' '}
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                className={styles.vercelLogo}
-                width={100}
-                height={24}
-                priority
-              />
-            </a>
-          </div>
-        </div>
 
         <div className={styles.center}>
-          {users.map((user: any) => {
-            return (
-              <div key={`user-${user.id}`}>
-                <span>#{user.id} {user.name}</span><br />
-              </div>
-            )
-          })}
-          {/* <Image
-            className={styles.logo}
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={37}
-            priority
-          />
-          <div className={styles.thirteen}>
-            <Image
-              src="/thirteen.svg"
-              alt="13"
-              width={40}
-              height={31}
-              priority
-            />
-          </div> */}
-        </div>
 
-        <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
+          {/* Webcam to take photo */}
+          {!profilePhotoBase64 && <Webcam
+            ref={webcamRef}
+            audio={false}
+            screenshotFormat="image/jpeg"
+            width={webcamDimensions.width}
+            height={webcamDimensions.height}
+            videoConstraints={{
+              width: webcamDimensions.width,
+              height: webcamDimensions.height,
+              facingMode: "user"
+            }} />}
 
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Learn <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Learn about Next.js in an interactive course with&nbsp;quizzes!
-            </p>
-          </a>
+          {/* The photo taken */}
+          {profilePhotoBase64 && <img src={profilePhotoBase64} width={webcamDimensions.width} height={webcamDimensions.height} />}
 
-          <a
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Templates <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Discover and deploy boilerplate example Next.js&nbsp;projects.
-            </p>
-          </a>
+          {/* Name input button */}
+          {clickedRegister && <input type='text' name='name' placeholder='Name' maxLength={255} style={{ width: 200, padding: 5, marginTop: 10, marginBottom: 5 }} required />}
 
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2 className={inter.className}>
-              Deploy <span>-&gt;</span>
-            </h2>
-            <p className={inter.className}>
-              Instantly deploy your Next.js site to a shareable URL
-              with&nbsp;Vercel.
-            </p>
-          </a>
+          {/* Age input button */}
+          {clickedRegister && <input type='number' name='age' placeholder='Age' min={1} max={130} style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} required />}
+
+          {/* Take profile picture button */}
+          {!profilePhotoBase64 && clickedRegister && <button type='button' style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} onClick={takePhoto}>Take profile picture</button>}
+
+          {/* Take another profile picture button */}
+          {profilePhotoBase64 && <button type='button' style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} onClick={() => setProfilePhotoBase64('')}>Take another photo</button>}
+
+          {/* Register button */}
+          <button type='button' style={{ width: 200, padding: 5, marginTop: 10, marginBottom: 5 }} onClick={() => {
+
+            if (!clickedRegister) {
+              setClickedRegister(true)
+              return
+            } else {
+              const name = (document.querySelector('input[name="name"]') as HTMLInputElement).value
+              const age = (document.querySelector('input[name="age"]') as HTMLInputElement).value
+              fetch('http://localhost:3001/users/register', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  name: name,
+                  age: age,
+                  profilePhotoBase64: profilePhotoBase64
+                })
+              }).then((res) => {
+                if (res.status === 201) {
+                  alert('Successfully registered.')
+                  setClickedRegister(false)
+                  setProfilePhotoBase64('')
+                }
+              })
+            }
+          }}>Register</button>
+
+          {/* Login button */}
+          {!clickedRegister && <button type='button' style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} onClick={() => {
+
+            let profilePhoto = profilePhotoBase64
+
+            if (!profilePhoto && webcamRef && webcamRef.current) {
+              profilePhoto = webcamRef.current.getScreenshot()
+            }
+
+            if (!profilePhoto) {
+              alert("Couldn't take picture to complete login.")
+              return
+            }
+
+            fetch('http://localhost:3001/users/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                profilePhotoBase64: profilePhoto
+              })
+            }).then((res) => {
+              if (res.status === 201) {
+                alert('Login successful.')
+                res.json().then((userData) => {
+                  setUserData(userData)
+                })
+              }
+            })
+          }}>Login</button>}
+
+          {clickedRegister && <button type='button' style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} onClick={() => {
+            setClickedRegister(false)
+          }}>Back</button>}
+
+          {userData && <span>{JSON.stringify(userData, null, 4)}</span>}
         </div>
       </main>
     </>

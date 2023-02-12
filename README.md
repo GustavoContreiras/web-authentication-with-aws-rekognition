@@ -35,10 +35,39 @@ You can see the most important files and it's locations in the diagram below. So
  ┃ ┣ 📜Dockerfile
  ┃ ┣ 📜package.json
  ┃ ┗ 📜next.config.js
+ ┣ 📂terraform
+ ┃ ┗ 📜main.tf
  ┣ 📜.env
  ┣ 📜docker-compose.yml
  ┗ 📜package.json
  ```
+
+## Install AWS CLI
+
+- <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>
+
+### Generate an Access Key and a Secret Key
+
+- Sign in AWS
+- Go to IAM service
+- Click in `Users`
+- Select the desired user
+- Click in `Create access key`
+- Follow the steps
+- Copy the generated Access Key and Secret Key to use on the next step
+
+### Configure AWS CLI's default profile
+
+- Run `aws configure`
+- Set your Access Key and Secret Key
+
+## Create the S3 Bucket
+
+- Go to the `terraform` folder (run `cd terraform`)
+- Run `terraform apply`
+- Type `yes`
+
+Note: To delete the S3 Bucket you just have to run `terraform destroy` and type `yes`
 
 ## Install Docker Desktop
 

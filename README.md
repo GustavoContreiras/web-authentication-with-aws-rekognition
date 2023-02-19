@@ -61,14 +61,6 @@ You can see the most important files and it's locations in the diagram below. So
 - Run `aws configure`
 - Set your Access Key and Secret Key
 
-## Create the S3 Bucket
-
-- Go to the `terraform` folder (run `cd terraform`)
-- Run `terraform apply`
-- Type `yes`
-
-Note: To delete the S3 Bucket you just have to run `terraform destroy` and type `yes`
-
 ## Install Docker Desktop
 
 - <https://docs.docker.com/desktop/install/windows-install/>

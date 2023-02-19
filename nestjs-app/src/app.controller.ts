@@ -183,6 +183,9 @@ export class AppController {
           faceId: faceId,
           // profilePhotoUrl: `${s3BucketBaseUrl}${profilePhotoFileName}`, // only possible if you are saving the image in the S3 Bucket
         })
+        return {
+          message: "Successfully registered the user."
+        }
       } else {
         return {
           error: "Something went wrong while inserting face in collection, please try again."

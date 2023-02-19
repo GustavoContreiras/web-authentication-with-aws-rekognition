@@ -13,11 +13,10 @@ This tutorial will teach you how to setup a dockerized environment that with a s
 You can see the most important files and it's locations in the diagram below. Some files were hidden to make it easier to understand.
 
 ```
-📦dockerized-full-stack-environment
+📦web-authentication-with-aws-rekognition
  ┣ 📂mysql-db
  ┃ ┣ 📜00-create-db.sql
- ┃ ┣ 📜01-create-table-users.sql
- ┃ ┗ 📜02-populate-users-table.sql
+ ┃ ┗ 📜01-create-table-users.sql
  ┣ 📂nestjs-app
  ┃ ┣ 📂node_modules
  ┃ ┣ 📂src
@@ -29,14 +28,13 @@ You can see the most important files and it's locations in the diagram below. So
  ┣ 📂nextjs-app
  ┃ ┣ 📂node_modules
  ┃ ┣ 📂pages
+ ┃ ┃ ┗ 📜index.tsx
  ┃ ┣ 📂public
  ┃ ┣ 📂styles
  ┃ ┣ 📜.dockerignore
  ┃ ┣ 📜Dockerfile
  ┃ ┣ 📜package.json
  ┃ ┗ 📜next.config.js
- ┣ 📂terraform
- ┃ ┗ 📜main.tf
  ┣ 📜.env
  ┣ 📜docker-compose.yml
  ┗ 📜package.json

@@ -20,6 +20,8 @@ export default function Home() {
   const [profilePhotoBase64, setProfilePhotoBase64] = useState('')
   const [clickedRegister, setClickedRegister] = useState(false)
   const [userData, setUserData] = useState(undefined)
+  const [loading, setLoading] = useState(false)
+  const [loginStep, setLoginStep] = useState(0)
 
   return (
     <>
@@ -31,7 +33,12 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
 
-        <div className={styles.center}>
+        {loading && <div className={styles.loader}></div>}
+
+        {loginStep === 1 && <div>Taking photo...</div>}
+        {loginStep === 2 && <div>Searching user...</div>}
+
+        {!loading && <div className={styles.center}>
 
           {/* Webcam to take photo */}
           {!profilePhotoBase64 && <Webcam
@@ -56,13 +63,30 @@ export default function Home() {
           {clickedRegister && <input type='number' name='age' placeholder='Age' min={1} max={130} style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} required />}
 
           {/* Take profile picture button */}
-          {!profilePhotoBase64 && clickedRegister && <button type='button' style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} onClick={takePhoto}>Take profile picture</button>}
+          {!profilePhotoBase64 && clickedRegister && <button type='button' style={{
+            backgroundColor: profilePhotoBase64 ? undefined : 'green',
+            width: 200,
+            padding: 5,
+            marginTop: 5,
+            marginBottom: 5
+          }} onClick={takePhoto}>Take profile picture</button>}
 
           {/* Take another profile picture button */}
-          {profilePhotoBase64 && <button type='button' style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} onClick={() => setProfilePhotoBase64('')}>Take another photo</button>}
+          {profilePhotoBase64 && !userData && <button type='button' style={{
+            width: 200,
+            padding: 5,
+            marginTop: 5,
+            marginBottom: 5
+          }} onClick={() => setProfilePhotoBase64('')}>Take another photo</button>}
 
           {/* Register button */}
-          <button type='button' style={{ width: 200, padding: 5, marginTop: 10, marginBottom: 5 }} onClick={() => {
+          {(!clickedRegister || profilePhotoBase64) && !userData && <button type='button' style={{
+            backgroundColor: profilePhotoBase64 ? 'green' : undefined,
+            width: 200,
+            padding: 5,
+            marginTop: 10,
+            marginBottom: 5
+          }} onClick={() => {
 
             if (!clickedRegister) {
               setClickedRegister(true)
@@ -70,6 +94,7 @@ export default function Home() {
             } else {
               const name = (document.querySelector('input[name="name"]') as HTMLInputElement).value
               const age = (document.querySelector('input[name="age"]') as HTMLInputElement).value
+              setLoading(true)
               fetch('http://localhost:3001/users/register', {
                 method: 'POST',
                 headers: {
@@ -80,23 +105,33 @@ export default function Home() {
                   age: age,
                   profilePhotoBase64: profilePhotoBase64
                 })
-              }).then((res) => {
+              }).then(async (res) => {
                 if (res.status === 201) {
-                  alert('Successfully registered.')
+                  const result = await res.json()
+                  if (!result.error) {
+                    alert('Successfully registered.')
+                  } else {
+                    alert(result.error)
+                  }
                   setClickedRegister(false)
                   setProfilePhotoBase64('')
                 }
+              }).finally(() => {
+                setLoading(false)
               })
             }
-          }}>Register</button>
+          }}>Register</button>}
 
           {/* Login button */}
-          {!clickedRegister && <button type='button' style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} onClick={() => {
+          {!clickedRegister && !userData && <button type='button' style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} onClick={() => {
 
+            setLoading(true)
+            setLoginStep(1) // taking photo...
             let profilePhoto = profilePhotoBase64
 
             if (!profilePhoto && webcamRef && webcamRef.current) {
               profilePhoto = webcamRef.current.getScreenshot()
+              setProfilePhotoBase64(profilePhoto)
             }
 
             if (!profilePhoto) {
@@ -104,6 +139,7 @@ export default function Home() {
               return
             }
 
+            setLoginStep(2) // searching user...
             fetch('http://localhost:3001/users/login', {
               method: 'POST',
               headers: {
@@ -119,6 +155,9 @@ export default function Home() {
                   setUserData(userData)
                 })
               }
+            }).finally(() => {
+              setLoginStep(0)
+              setLoading(false)
             })
           }}>Login</button>}
 
@@ -126,8 +165,17 @@ export default function Home() {
             setClickedRegister(false)
           }}>Back</button>}
 
+          {/* Logout button */}
+          {userData && <button type='button' style={{ width: 200, padding: 5, marginTop: 5, marginBottom: 5 }} onClick={() => {
+            setUserData(undefined)
+            setProfilePhotoBase64('')
+          }}>Logout</button>}
+
           {userData && <span>{JSON.stringify(userData, null, 4)}</span>}
-        </div>
+
+          <a href="http://localhost:3001/users" style={{ marginTop: 16 }} target="_blank">Users (database)</a>
+          <a href="http://localhost:3001/collection" style={{ marginTop: 8 }} target="_blank">Collection (AWS Rekognition)</a>
+        </div>}
       </main>
     </>
   )

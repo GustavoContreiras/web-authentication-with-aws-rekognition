@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CreateCollectionCommand, ListCollectionsCommand, ListCollectionsCommandOutput, RekognitionClient } from '@aws-sdk/client-rekognition';
+import { CreateCollectionCommand, DeleteCollectionCommand, ListCollectionsCommand, ListCollectionsCommandOutput, RekognitionClient } from '@aws-sdk/client-rekognition';
 
 @Module({
   imports: [
@@ -38,9 +38,9 @@ export class AppModule {
       }
     });
 
-    // Creates AWS Rekognition collection if it does not exist
+    // Creates AWS Rekognition collection (first it will delete if it exist)
     rekognitionClient.send(new ListCollectionsCommand({}))
-      .then((collections: ListCollectionsCommandOutput) => {
+      .then(async (collections: ListCollectionsCommandOutput) => {
 
         let alreadyExist = false
 
@@ -50,11 +50,17 @@ export class AppModule {
           }
         }
 
-        if (!alreadyExist) {
-          rekognitionClient.send(new CreateCollectionCommand({
+        // TODO: Re-create the logic. 
+        // You will probably not want to delete entire collection everytime the app is executed.
+        // And you also do not want to try to create something that already exists. 
+        if (alreadyExist) {
+          await rekognitionClient.send(new DeleteCollectionCommand({
             CollectionId: process.env.AWS_REKOGNITION_COLLECTION
           }))
         }
+        await rekognitionClient.send(new CreateCollectionCommand({
+          CollectionId: process.env.AWS_REKOGNITION_COLLECTION
+        }))
       })
   }
 }

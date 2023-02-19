@@ -17,7 +17,11 @@ export class AppService {
     ]);
   }
 
-  updateUserProfilePhoto({ id, faceId, profilePhotoUrl }) {
+  updateUserProfilePhoto({ id, faceId, profilePhotoUrl }: {
+    id: number,
+    faceId: string,
+    profilePhotoUrl?: string
+  }) {
     return this.dataSource.query(`UPDATE users SET face_id = ?, profile_photo_url = ? WHERE id = ?`, [
       faceId,
       profilePhotoUrl,
